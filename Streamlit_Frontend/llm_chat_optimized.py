@@ -1,10 +1,11 @@
 """
-Optimized chat system with optional LLM and fast fallback responses.
+Enhanced intelligent chat system with context-aware responses.
 """
 
 import streamlit as st
+import re
 
-# Fast FAQ-style responses (no LLM needed)
+# Comprehensive FAQ responses
 FAQ_RESPONSES = {
     "substitute": """Here are common ingredient substitutions:
     
@@ -62,54 +63,204 @@ Always read labels carefully and consult with a healthcare provider for severe a
 🛍️ **Shop Sales**: Buy in bulk when on sale, use coupons, compare unit prices"""
 }
 
-def get_quick_response(user_question: str) -> str:
+def extract_recipe_info_from_context(context_text):
+    """Extract recipe names and details from context for intelligent responses."""
+    recipes = []
+    try:
+        lines = context_text.split('\n')
+        current_recipe = {}
+        
+        for line in lines:
+            if 'Name:' in line or 'Recipe:' in line:
+                if current_recipe:
+                    recipes.append(current_recipe)
+                current_recipe = {'name': line.split(':', 1)[1].strip() if ':' in line else line}
+            elif 'Calories:' in line and current_recipe:
+                try:
+                    cal_match = re.search(r'(\d+\.?\d*)', line)
+                    if cal_match:
+                        current_recipe['calories'] = float(cal_match.group(1))
+                except:
+                    pass
+            elif 'Protein' in line and current_recipe:
+                try:
+                    prot_match = re.search(r'(\d+\.?\d*)', line)
+                    if prot_match:
+                        current_recipe['protein'] = float(prot_match.group(1))
+                except:
+                    pass
+                    
+        if current_recipe:
+            recipes.append(current_recipe)
+    except:
+        pass
+    
+    return recipes
+
+def get_intelligent_response(user_question: str, context_text: str) -> str:
     """
-    Provide fast FAQ-style responses based on keywords.
+    Provide intelligent, context-aware responses based on the question and available recipe data.
     """
     question_lower = user_question.lower()
+    recipes = extract_recipe_info_from_context(context_text)
     
-    # Check for keywords and return relevant FAQ
-    if any(word in question_lower for word in ['substitute', 'replace', 'instead', 'swap', 'alternative']):
-        return FAQ_RESPONSES['substitute']
-    elif any(word in question_lower for word in ['allergy', 'allergic', 'intolerance', 'sensitive']):
-        return FAQ_RESPONSES['allergy']
-    elif any(word in question_lower for word in ['cook', 'prepare', 'recipe', 'how to', 'tips']):
-        return FAQ_RESPONSES['cooking']
-    elif any(word in question_lower for word in ['nutrition', 'healthy', 'calories', 'protein', 'vitamins']):
-        return FAQ_RESPONSES['nutrition']
-    elif any(word in question_lower for word in ['meal prep', 'prepare ahead', 'batch', 'planning']):
-        return FAQ_RESPONSES['meal_prep']
-    elif any(word in question_lower for word in ['budget', 'cheap', 'affordable', 'save money', 'cost']):
-        return FAQ_RESPONSES['budget']
-    else:
-        return """I can help with:
-        
-• 🔄 **Ingredient substitutions** - Ask about swapping ingredients
-• 🚫 **Allergy alternatives** - Get safe food alternatives  
-• 👨‍🍳 **Cooking tips** - Learn cooking techniques
-• 🥗 **Nutrition advice** - Understand nutritional basics
-• 📅 **Meal prep** - Plan and prepare meals efficiently
-• 💰 **Budget tips** - Eat healthy affordably
+    # Question about specific recipes
+    if any(word in question_lower for word in ['recipe', 'meal', 'dish', 'food']):
+        if recipes:
+            recipe_list = "\n".join([f"• **{r.get('name', 'Unknown')}**" + 
+                                    (f" ({r.get('calories', 0):.0f} cal)" if 'calories' in r else "")
+                                    for r in recipes[:5]])
+            return f"""Based on your recommendations, here are your recipes:
 
-Try asking a more specific question, or enable AI Chat for personalized responses!"""
+{recipe_list}
+
+Each recipe is tailored to your nutritional needs. Would you like to know more about a specific recipe, or need help with substitutions?"""
+        else:
+            return "I don't see any recipes in your current recommendations. Please generate some recommendations first, then I can help you with specific questions about them!"
+    
+    # Questions about calories/nutrition
+    if any(word in question_lower for word in ['calorie', 'calories', 'nutrition', 'protein', 'carb', 'fat']):
+        if recipes and any('calories' in r for r in recipes):
+            total_cal = sum(r.get('calories', 0) for r in recipes)
+            avg_cal = total_cal / len(recipes) if recipes else 0
+            high_protein = len([r for r in recipes if r.get('protein', 0) > 20])
+            return f"""Nutritional Overview:
+
+• Total Calories: {total_cal:.0f} kcal across {len(recipes)} recipes
+• Average per Recipe: {avg_cal:.0f} kcal
+• Protein-rich options: {high_protein} recipes with 20g+ protein
+
+{FAQ_RESPONSES['nutrition']}
+
+Need help adjusting your calorie intake or finding higher/lower calorie options?"""
+        else:
+            return FAQ_RESPONSES['nutrition']
+    
+    # Questions about substitutions
+    if any(word in question_lower for word in ['substitute', 'replace', 'instead', 'swap', 'alternative', 'change']):
+        ingredients = ['egg', 'milk', 'butter', 'chicken', 'fish', 'cheese', 'bread', 'pasta']
+        mentioned = [ing for ing in ingredients if ing in question_lower]
+        
+        if mentioned:
+            response = f"Great question about substituting **{mentioned[0]}**!\n\n"
+            response += FAQ_RESPONSES['substitute']
+            if recipes:
+                response += f"\n\nTip: You have {len(recipes)} recipes. I can help you modify any of them with these substitutions!"
+            return response
+        return FAQ_RESPONSES['substitute']
+    
+    # Questions about allergies
+    if any(word in question_lower for word in ['allergy', 'allergic', 'intolerance', 'sensitive', 'avoid']):
+        return FAQ_RESPONSES['allergy']
+    
+    # Questions about cooking
+    if any(word in question_lower for word in ['cook', 'prepare', 'make', 'how to', 'tips', 'bake', 'fry', 'boil']):
+        return FAQ_RESPONSES['cooking']
+    
+    # Questions about meal prep
+    if any(word in question_lower for word in ['meal prep', 'prepare ahead', 'batch', 'planning', 'week', 'advance']):
+        return FAQ_RESPONSES['meal_prep']
+    
+    # Questions about budget
+    if any(word in question_lower for word in ['budget', 'cheap', 'affordable', 'save money', 'cost', 'price', 'expensive']):
+        if recipes:
+            return f"""Budget-Friendly Tips for Your {len(recipes)} Recipes:
+
+{FAQ_RESPONSES['budget']}
+
+Pro Tip: Buy ingredients that appear in multiple recipes to save money and reduce waste!"""
+        return FAQ_RESPONSES['budget']
+    
+    # Questions about specific days/meals (for meal planner)
+    if any(word in question_lower for word in ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday', 'breakfast', 'lunch', 'dinner', 'snack']):
+        if 'swap' in question_lower or 'change' in question_lower or 'different' in question_lower:
+            return """Swapping Meals:
+
+You can easily modify your meal plan:
+
+1. Same Nutrition: Look for recipes with similar calorie counts
+2. Keep Variety: Try different cuisines with the same nutritional profile
+3. Batch Cooking: Swap to recipes that share ingredients for efficiency
+
+Would you like suggestions for alternative recipes with similar nutrition?"""
+        elif context_text and ('meal plan' in context_text.lower() or 'weekly' in context_text.lower()):
+            return """About Your Meal Plan:
+
+Your plan is customized for your goals. Each meal is balanced for:
+• Calorie targets
+• Protein requirements
+• Nutritional variety
+
+Need to adjust a specific day or meal? Just let me know which one!"""
+    
+    # General help
+    if any(word in question_lower for word in ['help', 'what can', 'how do', '?']):
+        topic_count = len(recipes) if recipes else "your"
+        return f"""I'm here to help with {topic_count} recipes!
+
+I can assist you with:
+
+• Ingredient Substitutions - Swap ingredients you don't have
+• Allergy Alternatives - Safe alternatives for common allergens
+• Cooking Tips - Techniques and time-saving tricks
+• Nutrition Advice - Understanding your nutritional needs
+• Meal Prep - Planning and preparing meals efficiently
+• Budget Tips - Eating healthy affordably
+• Recipe Questions - Details about your recommended recipes
+
+Just ask me anything! For example:
+- "How can I substitute eggs?"
+- "What are the calories in my recipes?"
+- "How do I meal prep for the week?"
+"""
+    
+    # Default response with context
+    if recipes:
+        return f"""I have information about your {len(recipes)} recommended recipes!
+
+I can help you with:
+• Ingredient substitutions
+• Nutritional information
+• Cooking tips and techniques
+• Meal prep strategies
+• Budget-friendly alternatives
+
+Try asking:
+- "What are the calories in these recipes?"
+- "How can I substitute [ingredient]?"
+- "Give me cooking tips"
+- "How do I meal prep these?"
+
+What would you like to know?"""
+    else:
+        return """I'm your diet assistant! I can help with:
+        
+• Ingredient substitutions - Ask about swapping ingredients
+• Allergy alternatives - Get safe food alternatives  
+• Cooking tips - Learn cooking techniques
+• Nutrition advice - Understand nutritional basics
+• Meal prep - Plan and prepare meals efficiently
+• Budget tips - Eat healthy affordably
+
+Ask me anything about diet, nutrition, or cooking!"""
 
 
 def generate_chat_answer(context_text: str, history_text: str, user_message: str, use_ai: bool = False) -> str:
     """
-    Generate a chat response. Uses fast FAQ by default, or LLM if enabled.
+    Generate a chat response. Uses intelligent FAQ by default, or LLM if enabled.
     
     Args:
         context_text: Text describing current recommended recipes
         history_text: Previous chat history
         user_message: The user's question
-        use_ai: If True, use LLM (slow). If False, use fast FAQ responses.
+        use_ai: If True, use LLM (slow). If False, use intelligent FAQ responses.
         
     Returns:
         The assistant's reply
     """
     if not use_ai:
-        # Fast FAQ-based response
-        return get_quick_response(user_message)
+        # Intelligent context-aware response
+        return get_intelligent_response(user_message, context_text)
     
     # LLM-based response (slow but more personalized)
     try:
@@ -117,4 +268,4 @@ def generate_chat_answer(context_text: str, history_text: str, user_message: str
         from llm_chat import generate_chat_answer as llm_generate
         return llm_generate(context_text, history_text, user_message)
     except Exception as e:
-        return f"⚠️ AI chat error: {str(e)}. Try using Quick Response mode instead."
+        return f"AI chat error: {str(e)}. Using Quick Response mode instead.\n\n" + get_intelligent_response(user_message, context_text)
