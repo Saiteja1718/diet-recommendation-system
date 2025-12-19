@@ -10,7 +10,7 @@ import os
 
 
 # Load dataset once at module level
-@st.cache(allow_output_mutation=True)
+@st.cache_data
 def load_dataset():
     # Try multiple paths for different deployment scenarios
     possible_paths = [
