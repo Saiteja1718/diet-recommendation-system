@@ -1,1 +1,8 @@
-libgomp1
+# Hugging Face Spaces Configuration
+# This file tells HF Spaces how to set up and run your app
+
+# Python version
+python-3.11
+
+# System packages (if needed)
+# Add any system-level dependencies here
