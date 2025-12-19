@@ -2,7 +2,6 @@
 
 # 🥗 Diet Recommendation System
 
-[![DOI](https://zenodo.org/badge/582718021.svg)](https://zenodo.org/doi/10.5281/zenodo.12507163)
 [![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.88.0-009688.svg)](https://fastapi.tiangolo.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.16.0-FF4B4B.svg)](https://streamlit.io/)
@@ -11,8 +10,6 @@
 **An AI-powered nutrition companion that provides personalized diet recommendations using content-based filtering with 500,000+ recipes**
 
 [Features](#-features) • [Demo](#-demo) • [Installation](#-installation) • [Usage](#-usage) • [Architecture](#-architecture) • [Contributing](#-contributing)
-
-![Diet Recommendation System](Assets/logo_img1.jpg)
 
 </div>
 
@@ -35,7 +32,6 @@
 - [API Documentation](#-api-documentation)
 - [Performance Optimizations](#-performance-optimizations)
 - [Contributing](#-contributing)
-- [Citation](#-citation)
 - [License](#-license)
 - [Acknowledgments](#-acknowledgments)
 
@@ -90,17 +86,15 @@ In today's fast-paced world, maintaining a balanced diet is challenging. This sy
 
 ### Live Application
 
-🌐 **Try it now:** [https://diet-recommendation-system.streamlit.app/](https://diet-recommendation-system.streamlit.app/)
+🌐 **Try it now:** [Diet Recommendation System](https://github.com/Saiteja1718/diet-recommendation-system)
 
-### Screenshots
+### Key Features Showcase
 
-<div align="center">
-
-| Welcome Page | Diet Recommendation | Meal Planner |
-|:---:|:---:|:---:|
-| ![Welcome](Assets/screenshot1.png) | ![Diet](Assets/screenshot2.png) | ![Planner](Assets/screenshot3.png) |
-
-</div>
+- **Personalized Diet Plans** - Get custom meal recommendations
+- **Smart Recipe Search** - Find recipes matching your nutritional needs
+- **Weekly Meal Planner** - Plan your entire week with shopping lists
+- **Budget Tracking** - Stay within your meal budget
+- **Instant Chat** - Get quick answers to nutrition questions
 
 ---
 
@@ -127,17 +121,6 @@ In today's fast-paced world, maintaining a balanced diet is challenging. This sy
 ### DevOps
 - **Docker** & **Docker Compose** - Containerization
 - **Git** - Version control
-
-<div align="center">
-
-![Python](https://img.icons8.com/color/48/null/python--v1.png)
-![NumPy](https://img.icons8.com/color/48/null/numpy.png)
-![Pandas](https://img.icons8.com/color/48/null/pandas.png)
-![Streamlit](Assets/streamlit-icon-48x48.png)
-![FastAPI](Assets/fastapi.ico)
-![Scikit-learn](Assets/scikit-learn.ico)
-
-</div>
 
 ---
 
@@ -210,8 +193,8 @@ The easiest way to run the application:
 
 ```bash
 # Clone the repository
-git clone https://github.com/zakaria-narjis/Diet-Recommendation-System.git
-cd Diet-Recommendation-System
+git clone https://github.com/Saiteja1718/diet-recommendation-system.git
+cd diet-recommendation-system
 
 # Start with Docker Compose
 docker-compose up -d --build
@@ -228,8 +211,8 @@ For development or if you prefer running without Docker:
 #### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/zakaria-narjis/Diet-Recommendation-System.git
-cd Diet-Recommendation-System
+git clone https://github.com/Saiteja1718/diet-recommendation-system.git
+cd diet-recommendation-system
 ```
 
 #### 2. Set Up Backend
@@ -335,7 +318,7 @@ Get instant answers to nutrition questions:
 ## 📁 Project Structure
 
 ```
-Diet-Recommendation-System/
+diet-recommendation-system/
 ├── 📂 FastAPI_Backend/          # API server
 │   ├── main.py                  # FastAPI application
 │   ├── model.py                 # ML recommendation engine
@@ -548,25 +531,6 @@ We welcome contributions! Here's how you can help:
 
 ---
 
-## 📖 Citation
-
-If you use this project in your research or work, please cite:
-
-```bibtex
-@software{narjis_2024_12507829,
-  author       = {Dusari, Sai Teja},
-  title        = {Diet Recommendation System},
-  month        = jun,
-  year         = 2024,
-  publisher    = {Zenodo},
-  version      = {v1.0.1},
-  doi          = {10.5281/zenodo.12507829},
-  url          = {https://doi.org/10.5281/zenodo.12507829}
-}
-```
-
----
-
 ## 📄 License
 
 This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
@@ -586,9 +550,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 📞 Contact & Support
 
-- **Issues**: [GitHub Issues](https://github.com/zakaria-narjis/Diet-Recommendation-System/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/zakaria-narjis/Diet-Recommendation-System/discussions)
-- **Original Repository**: [zakaria-narjis/Diet-Recommendation-System](https://github.com/zakaria-narjis/Diet-Recommendation-System)
+- **Repository**: [github.com/Saiteja1718/diet-recommendation-system](https://github.com/Saiteja1718/diet-recommendation-system)
+- **Issues**: [Report Issues](https://github.com/Saiteja1718/diet-recommendation-system/issues)
+- **Author**: Sai Teja Dusari
 
 ---
 
