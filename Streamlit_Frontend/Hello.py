@@ -9,7 +9,7 @@ st.set_page_config(
 # Hero Section
 st.markdown("""
 <div style='text-align: center; padding: 3rem 0 2rem 0;'>
-    <h1 style='font-size: 3.5rem; margin-bottom: 0.5rem; background: linear-gradient(120deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;'>
+    <h1 style='font-size: 3.5rem; margin-bottom: 0.5rem; color: #667eea; font-weight: 700;'>
         🥗 Diet Recommendation System
     </h1>
     <p style='font-size: 1.3rem; color: #6c757d; margin-bottom: 2rem;'>
