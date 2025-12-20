@@ -86,7 +86,7 @@ In today's fast-paced world, maintaining a balanced diet is challenging. This sy
 
 ### Live Application
 
-🌐 **Try it now:** [Diet Recommendation System](https://github.com/Saiteja1718/diet-recommendation-system)
+🌐 **Try it now:** [Diet Recommendation System](https://huggingface.co/spaces/saiteja1817/dietrecommendationsystem)
 
 **🚀 Live Demo:** [Try it on Hugging Face Spaces](https://huggingface.co/spaces/saiteja1817/dietrecommendationsystem)
 
