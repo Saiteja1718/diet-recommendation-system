@@ -13,18 +13,6 @@ import json
 
 st.set_page_config(page_title="AI Meal Planner", page_icon="🍽️", layout="wide")
 
-# Load custom CSS
-def load_css():
-    import os
-    try:
-        css_path = os.path.join(os.path.dirname(__file__), '..', 'style.css')
-        with open(css_path) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except Exception as e:
-        st.warning(f"Could not load CSS: {e}")
-
-load_css()
-
 # Session state initialization
 if 'planner_stage' not in st.session_state:
     st.session_state.planner_stage = 'welcome'  # welcome, collecting_info, generating, results
@@ -574,9 +562,39 @@ if current_stage == 'welcome':
         st.rerun()
 
 elif current_stage == 'generating':
-    # Generate meal plan
-    generate_meal_plan_with_llm()
-    st.rerun()  # Refresh page to show results
+    # Check if we've already shown the loading screen
+    if 'generation_started' not in st.session_state:
+        # FIRST RERUN: Just show the loading message
+        st.session_state.generation_started = True
+        
+        st.markdown("### 🔮 Generating Your Personalized Meal Plan...")
+        st.info("⏳ Please wait while we create your customized meal plan. This may take 30-60 seconds.")
+        st.markdown("**🍳 Finding perfect recipes for you...**")
+        
+        # Force immediate rerun to actually start generation
+        st.rerun()
+    else:
+        # SECOND RERUN: Actually generate the meal plan
+        st.markdown("### 🔮 Generating Your Personalized Meal Plan...")
+        st.info("⏳ Please wait while we create your customized meal plan. This may take 30-60 seconds.")
+        
+        progress_placeholder = st.empty()
+        progress_placeholder.markdown("**🍳 Finding perfect recipes for you...**")
+        
+        # Generate meal plan
+        generate_meal_plan_with_llm()
+        
+        # Clear the generation flag
+        del st.session_state.generation_started
+        
+        # Show success
+        progress_placeholder.success("✅ Meal plan generated successfully!")
+        
+        # Small delay
+        import time
+        time.sleep(1)
+        
+        st.rerun()  # Refresh page to show results
 
 elif current_stage == 'results':
     # Display results
@@ -609,49 +627,57 @@ elif current_stage == 'results':
             del st.session_state.meal_planner_chat_input
         st.session_state.clear_meal_planner_input = False
     
-    # Chat input
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        user_question = st.text_input(
-            "Ask about your meal plan:",
-            placeholder="e.g., Can I swap Tuesday's lunch?",
-            key="meal_planner_chat"
-        )
-    with col2:
-        st.markdown("<br>", unsafe_allow_html=True)
-        ask_button = st.button("Ask")
+    # Chat input using form to prevent reprocessing
+    with st.form(key="meal_plan_chat_form", clear_on_submit=True):
+        col1, col2 = st.columns([4, 1])
+        with col1:
+            user_question = st.text_input(
+                "Ask about your meal plan:",
+                placeholder="e.g., Can I swap Tuesday's lunch?",
+                key="meal_planner_chat_input",
+                label_visibility="collapsed"
+            )
+        with col2:
+            ask_button = st.form_submit_button("Ask", use_container_width=True)
     
+    # Process the question only when form is submitted
     if ask_button and user_question:
-        # Build context from meal plan
-        meal_plan_context = "Weekly Meal Plan:\n"
-        for day, meals in st.session_state.meal_plan.items():
-            meal_plan_context += f"\n{day}:\n"
-            for meal_name, recipe in meals.items():
-                meal_plan_context += f"  - {meal_name}: {recipe['Name']} ({recipe['Calories']:.0f} kcal)\n"
-        
-        # Build history
-        history_text = ""
-        for role, text in st.session_state.meal_plan_chat_history:
-            prefix = "User" if role == "user" else "Assistant"
-            history_text += f"{prefix}: {text}\n"
-        
-        with st.spinner("🤔 Thinking..."):
-            answer = generate_chat_answer(meal_plan_context, history_text, user_question)
-        
-        # Append messages to history
-        st.session_state.meal_plan_chat_history.append(("user", user_question))
-        st.session_state.meal_plan_chat_history.append(("assistant", answer))
-        
-        # Set flag to clear input on next render
-        st.session_state.clear_meal_planner_input = True
-        
-        # Rerun to refresh the chat display
-        st.rerun()
+        # Check if we're already processing this question
+        if 'processing_meal_chat' not in st.session_state:
+            st.session_state.processing_meal_chat = True
+            
+            # Build context from meal plan
+            meal_plan_context = "Weekly Meal Plan:\\n"
+            for day, meals in st.session_state.meal_plan.items():
+                meal_plan_context += f"\\n{day}:\\n"
+                for meal_name, recipe in meals.items():
+                    meal_plan_context += f"  - {meal_name}: {recipe['Name']} ({recipe['Calories']:.0f} kcal)\\n"
+            
+            # Build history
+            history_text = ""
+            for role, text in st.session_state.meal_plan_chat_history:
+                prefix = "User" if role == "user" else "Assistant"
+                history_text += f"{prefix}: {text}\\n"
+            
+            with st.spinner("🤔 Thinking..."):
+                answer = generate_chat_answer(meal_plan_context, history_text, user_question)
+            
+            # Append messages to history
+            st.session_state.meal_plan_chat_history.append(("user", user_question))
+            st.session_state.meal_plan_chat_history.append(("assistant", answer))
+            
+            # Clear the processing flag
+            del st.session_state.processing_meal_chat
+            
+            # Rerun to show the response (form will clear automatically due to clear_on_submit=True)
+            st.rerun()
     
     # Clear chat button
     if st.session_state.meal_plan_chat_history:
         if st.button("🗑️ Clear Chat"):
             st.session_state.meal_plan_chat_history = []
+            if 'processing_meal_chat' in st.session_state:
+                del st.session_state.processing_meal_chat
             st.rerun()
     
     # Restart button
@@ -665,6 +691,10 @@ elif current_stage == 'results':
         st.session_state.used_recipe_names = set()
         if 'clear_meal_planner_input' in st.session_state:
             del st.session_state.clear_meal_planner_input
+        if 'processing_meal_chat' in st.session_state:
+            del st.session_state.processing_meal_chat
+        if 'generation_started' in st.session_state:
+            del st.session_state.generation_started
         st.rerun()
 
 else:

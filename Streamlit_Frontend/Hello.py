@@ -6,16 +6,6 @@ st.set_page_config(
     layout="wide"
 )
 
-# Load custom CSS
-def load_css():
-    try:
-        with open("style.css") as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except:
-        pass  # CSS file optional
-
-load_css()
-
 # Hero Section
 st.markdown("""
 <div style='text-align: center; padding: 3rem 0 2rem 0;'>

@@ -88,7 +88,11 @@ In today's fast-paced world, maintaining a balanced diet is challenging. This sy
 
 🌐 **Try it now:** [Diet Recommendation System](https://github.com/Saiteja1718/diet-recommendation-system)
 
-### Key Features Showcase
+**🚀 Live Demo:** [Try it on Hugging Face Spaces](https://huggingface.co/spaces/saiteja1817/dietrecommendationsystem)
+
+The application is deployed on Hugging Face Spaces with full TinyLlama LLM chat functionality for intelligent recipe recommendations and meal planning assistance.
+
+### Key Features in Action:
 
 - **Personalized Diet Plans** - Get custom meal recommendations
 - **Smart Recipe Search** - Find recipes matching your nutritional needs
@@ -138,7 +142,7 @@ graph TB
     
     subgraph "API Layer"
         F[FastAPI Server]
-        G[/predict/ Endpoint]
+        G["predict Endpoint"]
     end
     
     subgraph "ML Layer"

@@ -9,21 +9,6 @@ from shopping_list_generator import generate_shopping_list, format_shopping_list
 
 st.set_page_config(page_title="Automatic Diet Recommendation", page_icon="💪",layout="wide")
 
-# Load custom CSS
-def load_css():
-    import os
-    try:
-        css_path = os.path.join(os.path.dirname(__file__), '..', 'style.css')
-        with open(css_path) as f:
-            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
-    except Exception as e:
-        st.warning(f"Could not load CSS: {e}")
-
-load_css()
-
-
-
-
 nutritions_values=['Calories','FatContent','SaturatedFatContent','CholesterolContent','SodiumContent','CarbohydrateContent','FiberContent','SugarContent','ProteinContent']
 # Streamlit states initialization
 if 'person' not in st.session_state:
