@@ -6,13 +6,11 @@ st.set_page_config(
     layout="wide"
 )
 
-# Hero Section
+# Main Title
+st.title("🥗 Diet Recommendation System")
 st.markdown("""
-<div style='text-align: center; padding: 3rem 0 2rem 0;'>
-    <h1 style='font-size: 3.5rem; margin-bottom: 0.5rem; color: #667eea; font-weight: 700;'>
-        🥗 Diet Recommendation System
-    </h1>
-    <p style='font-size: 1.3rem; color: #6c757d; margin-bottom: 2rem;'>
+<div style='text-align: center; margin-bottom: 2rem;'>
+    <p style='font-size: 1.3rem; color: #a0aec0;'>
         Your AI-Powered Nutrition Companion
     </p>
 </div>
